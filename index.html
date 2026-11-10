@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treasury Shares and Share Buybacks</title>
+  <style>
+    :root {
+      --navy: #0b1f3a;
+      --teal: #0f8b8d;
+      --amber: #e0a100;
+      --paper: #f5f7fa;
+      --ink: #1d2733;
+      --muted: #5b6b7c;
+      --line: #d9e0e8;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, Arial, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.6; }
+
+    /* Top bar with tab links (pure HTML/CSS, no JavaScript) */
+    header.top { background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 10; }
+    header.top .brand { padding: 14px 20px 0; font-weight: 700; letter-spacing: .3px; }
+    nav.tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 14px 0; }
+    nav.tabs a { color: #cfd9e6; text-decoration: none; padding: 10px 14px; border-radius: 8px 8px 0 0; font-size: 15px; }
+    nav.tabs a:hover { background: #163459; color: #fff; }
+    nav.tabs a.active, nav.tabs a:target { background: var(--paper); color: var(--navy); font-weight: 600; }
+
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+
+    /* Tabs: each section is a tab, shown only when its hash is targeted */
+    .tab { display: none; animation: fade .35s ease; }
+    .tab:target { display: block; }
+    #home { display: block; }
+    :root:has(.tab:target) #home { display: none; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .hero { background: linear-gradient(135deg, var(--navy), #1b4f7a); color: #fff; border-radius: 16px; padding: 40px 32px; }
+    .hero h1 { margin: 0 0 8px; font-size: 2.2em; line-height: 1.15; }
+    .hero p { margin: 0; color: #d4e0ee; }
+    .authors { margin-top: 20px; font-size: 14px; color: #b9c9dc; }
+
+    h2 { font-size: 1.7em; color: var(--navy); margin: 0 0 6px; }
+    h3 { color: var(--navy); margin: 26px 0 8px; font-size: 1.15em; }
+    .kicker { color: var(--teal); font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; margin: 0; }
+    .lead { color: var(--muted); font-size: 1.05em; margin-top: 4px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+    .card h3 { margin-top: 0; }
+    .card .tag { display: inline-block; font-size: 12px; background: #e6f4f4; color: var(--teal); padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; }
+    .card.own { border-left: 4px solid var(--amber); }
+    .card.own .tag { background: #fff4d6; color: #8a6400; }
+
+    .stat-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 20px 0; }
+    .stat { flex: 1 1 180px; background: var(--navy); color: #fff; border-radius: 12px; padding: 18px; }
+    .stat .num { font-size: 2em; font-weight: 700; color: #7fe0e2; line-height: 1.1; }
+    .stat .cap { font-size: 13px; color: #c4d3e4; }
+
+    .bars { margin: 14px 0; }
+    .bar-row { margin: 12px 0; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+    .bar-track { background: #e4eaf1; border-radius: 6px; height: 22px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 6px; background: var(--teal); }
+    .bar-fill.grey { background: #8a9bb3; }
+    .bar-fill.amber { background: var(--amber); }
+    .bar-fill.navy { background: var(--navy); }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; margin: 14px 0; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 15px; }
+    th { background: var(--navy); color: #fff; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+
+    ul.clean { padding-left: 20px; }
+    ul.clean li { margin: 6px 0; }
+
+    blockquote { margin: 20px 0; padding: 14px 20px; background: #fff; border-left: 4px solid var(--teal); border-radius: 0 10px 10px 0; color: var(--ink); }
+
+    .pill-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .pill-links a { background: var(--navy); color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 999px; font-size: 14px; }
+    .pill-links a:hover { background: var(--teal); }
+
+    footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.6em; }
+      nav.tabs a { padding: 8px 10px; font-size: 14px; }
+      main { padding: 20px 16px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">Share Buybacks · Treasury Shares</div>
+  <nav class="tabs">
+    <a href="#home">Start</a>
+    <a href="#background">Background</a>
+    <a href="#motives">Motives</a>
+    <a href="#tradeoffs">Advantages &amp; Risks</a>
+    <a href="#research">Research</a>
+    <a href="#findings">Findings</a>
+    <a href="#conclusion">Conclusion</a>
+    <a href="#sources">Sources</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- Start / Introduction -->
+  <section id="home" class="tab">
+    <div class="hero">
+      <p class="kicker" style="color:#7fe0e2">MBA · Value-Based Controlling and International Accounting</p>
+      <h1>Treasury Shares and Share Buybacks</h1>
+      <p>Motives, strategies and shortcomings of share buyback activities of large corporates, with a look at DAX and MDAX companies from 2021 to 2025.</p>
+      <div class="authors">
+        Tobias Terhardt (861904) · Hendrik Liebchen (524330)<br>
+        FOM Düsseldorf · Prof. Dr. Martin Wünsch
+      </div>
+    </div>
+
+    <h3>Agenda</h3>
+    <div class="grid">
+      <a class="card" href="#background" style="text-decoration:none;color:inherit"><span class="tag">01</span><h3>Background</h3>Definition, process, ways to buy back, history</a>
+      <a class="card" href="#motives" style="text-decoration:none;color:inherit"><span class="tag">02</span><h3>Motives</h3>Why companies repurchase shares</a>
+      <a class="card" href="#tradeoffs" style="text-decoration:none;color:inherit"><span class="tag">03</span><h3>Advantages &amp; Risks</h3>For whom buybacks help, and who pays</a>
+      <a class="card" href="#research" style="text-decoration:none;color:inherit"><span class="tag">04</span><h3>Research Question</h3>Dividends vs. buybacks, 2021 to 2025</a>
+      <a class="card" href="#findings" style="text-decoration:none;color:inherit"><span class="tag">05</span><h3>Empirical Findings</h3>Hybrid payouts and share counts</a>
+      <a class="card" href="#conclusion" style="text-decoration:none;color:inherit"><span class="tag">06</span><h3>Conclusion</h3>Capital discipline and the growth trade-off</a>
+    </div>
+  </section>
+
+  <!-- 01 Background -->
+  <section id="background" class="tab">
+    <p class="kicker">01 · Theoretical Background</p>
+    <h2>What is a share buyback?</h2>
+    <p class="lead">A company reacquires its own shares from current shareholders.</p>
+
+    <div class="grid">
+      <div class="card"><span class="tag">Process</span><h3>Buyback</h3>The company buys back its own shares from current shareholders. Also called share repurchase.</div>
+      <div class="card"><span class="tag">Result</span><h3>Treasury shares</h3>The repurchased shares sit on the company's balance sheet as treasury shares.</div>
+      <div class="card"><span class="tag">Effect</span><h3>Cash out</h3>The company distributes cash to shareholders in exchange for their shares. The capital flow is the opposite of an IPO.</div>
+      <div class="card"><span class="tag">Market</span><h3>Demand</h3>Repurchases create additional stock demand, so share prices may rise.</div>
+    </div>
+
+    <h3>Ways to conduct share buybacks</h3>
+    <table>
+      <tr><th>Method</th><th>How it works</th></tr>
+      <tr><td><strong>Open-market repurchase</strong> (most common)</td><td>The company announces its intention and buys shares on the public stock market.</td></tr>
+      <tr><td><strong>Public tender offer</strong></td><td>An offer to repurchase a set number of shares at a fixed price or within a price range. Mainly addressed to smaller investors.</td></tr>
+      <tr><td><strong>Repurchase from large investors</strong></td><td>Shares are bought directly from a large shareholder.</td></tr>
+      <tr><td><strong>Derivatives</strong></td><td>Use of derivative instruments to structure the repurchase.</td></tr>
+    </table>
+
+    <h3>Historical development</h3>
+    <div class="card">
+      <p style="margin-top:0">Before the 1980s, companies running repurchase programmes faced a real risk of legal disputes. The main concerns were information asymmetries and stock price manipulation. There were fewer than 30 annual U.S. repurchase announcements.</p>
+      <p><strong>1982:</strong> U.S. authorities introduced Rule 10b-18, a safe-harbour rule. Companies acting according to it were legally protected. U.S. spending on buybacks tripled within one year.</p>
+      <p style="margin-bottom:0">Since then, many countries have deregulated, and global repurchase activity has increased significantly.</p>
+    </div>
+
+    <h3>Spending on repurchases vs. dividends (U.S., 15,000 companies)</h3>
+    <div class="bars">
+      <div class="bar-row"><div class="bar-label"><span>1972</span><span>8%</span></div><div class="bar-track"><div class="bar-fill grey" style="width:8%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>2000</span><span>113%</span></div><div class="bar-track"><div class="bar-fill navy" style="width:100%"></div></div></div>
+    </div>
+    <p class="lead" style="font-size:14px">Ratio of U.S. spending on repurchases to dividend payments. In 2000 the ratio exceeded 100%, so buybacks outweighed dividends.</p>
+  </section>
+
+  <!-- 02 Motives -->
+  <section id="motives" class="tab">
+    <p class="kicker">02 · Motives</p>
+    <h2>Why do companies buy back shares?</h2>
+    <p class="lead">From outside the company, the actual motive is hard to identify. The potential motives are below.</p>
+
+    <div class="grid">
+      <div class="card"><span class="tag">EPS</span><h3>Increase earnings per share</h3>Fewer shares lift EPS, which helps meet or beat analyst forecasts.</div>
+      <div class="card"><span class="tag">Dilution</span><h3>Offset dilution</h3>Counters the share count growth caused by stock-based compensation.</div>
+      <div class="card"><span class="tag">Signal</span><h3>Signaling</h3>The legally required announcement communicates that the stock may be undervalued. This can raise investor demand.</div>
+      <div class="card"><span class="tag">Timing</span><h3>Market timing</h3>The company repurchases below fair value, which can be a good investment.</div>
+      <div class="card"><span class="tag">Cash</span><h3>Excess cash</h3>An alternative when there is excess cash or few investment opportunities.</div>
+    </div>
+
+    <h3>Managerial evidence</h3>
+    <div class="stat-row">
+      <div class="stat"><div class="num">3 of 4</div><div class="cap">Financial managers name EPS as a core justification (Brav et al., 2005)</div></div>
+      <div class="stat"><div class="num">2/3</div><div class="cap">Managers emphasise offsetting dilution from employee plans (Brav et al., 2005)</div></div>
+      <div class="stat"><div class="num">+683%</div><div class="cap">Growth in CEO stock option grants, 1980 to 1994 (Hall &amp; Liebman, 1998)</div></div>
+    </div>
+
+    <blockquote>The stronger the link between executive pay and the share price, the more a buyback helps the numbers that drive that pay.</blockquote>
+    <p class="lead" style="font-size:13px">This sentence is our own interpretation and not a finding of the cited studies.</p>
+  </section>
+
+  <!-- Advantages & Risks -->
+  <section id="tradeoffs" class="tab">
+    <p class="kicker">03 · Advantages and Shortcomings</p>
+    <h2>For whom is a buyback good?</h2>
+
+    <h3>Advantages</h3>
+    <div class="grid">
+      <div class="card"><span class="tag">Company</span><h3>High flexibility</h3>Buybacks are a flexible way to distribute earnings. The announcement is not binding, so the company can still decide not to repurchase.</div>
+      <div class="card"><span class="tag">Company</span><h3>Timing control</h3>The company decides when the cash goes out. Lower commitment than dividends, which can create long-term payment expectations.</div>
+      <div class="card"><span class="tag">Shareholder</span><h3>Tax advantage</h3>Gains are often taxed at lower rates than dividends. Tax applies only when shares are sold, while dividends are taxed directly.</div>
+      <div class="card"><span class="tag">Market</span><h3>Short-term support</h3>Potential short-term support for the stock price and for EPS targets.</div>
+    </div>
+
+    <h3>Shortcomings and risks</h3>
+    <div class="card own" style="margin-bottom:16px">
+      <span class="tag">Own addition</span>
+      <h3 style="margin-top:0">Who pays?</h3>
+      <p style="margin-top:0">The cash outflow can cut current investments or prevent necessary long-term investments. Short-term choices can come at the expense of the future.</p>
+    </div>
+
+    <h3>Case study: S&amp;P 500, 2003 to 2012</h3>
+    <p>449 U.S. companies distributed their earnings as follows:</p>
+    <div class="bars">
+      <div class="bar-row"><div class="bar-label"><span>Share repurchases</span><span>54%</span></div><div class="bar-track"><div class="bar-fill" style="width:54%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Dividends</span><span>37%</span></div><div class="bar-track"><div class="bar-fill grey" style="width:37%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Retained in the company</span><span>9%</span></div><div class="bar-track"><div class="bar-fill amber" style="width:9%"></div></div></div>
+    </div>
+    <p>Part of the repurchases was financed by debt, which weakens the financial position further. Higher default risk can lower bond prices and ratings, which hurts bondholders.</p>
+
+    <h3>Who is affected?</h3>
+    <table>
+      <tr><th>Stakeholder</th><th>Typical impact</th></tr>
+      <tr><td>Shareholders</td><td>Gain from EPS and share price support, and can benefit from tax timing</td></tr>
+      <tr><td>Management</td><td>EPS targets and option-based pay improve</td></tr>
+      <tr><td>Bondholders</td><td>Higher default risk when buybacks are debt-financed</td></tr>
+      <tr><td>Employees and R&amp;D</td><td>Less capital left for reinvestment and innovation</td></tr>
+      <tr><td>Market</td><td>Risk of price manipulation or short-term decisions</td></tr>
+    </table>
+  </section>
+
+  <!-- Research -->
+  <section id="research" class="tab">
+    <p class="kicker">04 · Research Question</p>
+    <h2>How do German companies split their earnings?</h2>
+    <div class="grid">
+      <div class="card"><span class="tag">Subject</span><h3>Capital distribution</h3>How corporate earnings are split between dividends and share buybacks.</div>
+      <div class="card"><span class="tag">Sample</span><h3>DAX and MDAX</h3>German listed companies, large caps (DAX) and mid caps (MDAX).</div>
+      <div class="card"><span class="tag">Timeframe</span><h3>2021 to 2025</h3>Five years, including the post-pandemic period.</div>
+      <div class="card"><span class="tag">Metrics</span><h3>Revenue and EBITDA</h3>Payout intensity measured against two baselines: revenues and EBITDA (earnings before interest, taxes, depreciation and amortisation).</div>
+    </div>
+    <blockquote>How have dividend payments and share buybacks evolved among German listed companies (DAX and MDAX) from 2021 to 2025, measured against revenues and EBITDA?</blockquote>
+  </section>
+
+  <!-- Findings -->
+  <section id="findings" class="tab">
+    <p class="kicker">05 · Empirical Findings</p>
+    <h2>Hybrid payouts and share counts</h2>
+
+    <h3>I. Mixed payout model</h3>
+    <p>DAX and MDAX companies are moving from a strict dividend focus to a flexible hybrid model that increasingly includes buybacks. Dividends signal financial health, while buybacks offer an alternative to return capital without committing to long-term dividend increases.</p>
+
+    <h3>II. Strategic capital allocation</h3>
+    <p>Companies with high free cash flow use buybacks to keep capital discipline when local investment returns in Germany and the EU are low. Combined dividends and buybacks prioritise EPS and investor returns.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="num">7.4%</div><div class="cap">Lowest share of EBITDA returned, 2021 to 2025</div></div>
+      <div class="stat"><div class="num">29.8%</div><div class="cap">Highest share of EBITDA returned, 2021 to 2025</div></div>
+    </div>
+    <p class="lead" style="font-size:14px">The deck headline says "up to 30%". Both figures reflect the range of returns in the sample.</p>
+
+    <h3>III. Share count development (2021 to 2025)</h3>
+    <div class="bars">
+      <div class="bar-row"><div class="bar-label"><span>Decreased share count</span><span>30.26%</span></div><div class="bar-track"><div class="bar-fill" style="width:30.26%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Stable share count (derived)</span><span>40.79%</span></div><div class="bar-track"><div class="bar-fill grey" style="width:40.79%"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Increased share count</span><span>28.95%</span></div><div class="bar-track"><div class="bar-fill amber" style="width:28.95%"></div></div></div>
+    </div>
+    <p class="lead" style="font-size:14px">The stable share is calculated as 100 − 30.26 − 28.95. The deck says "over 40%".</p>
+
+    <div class="grid">
+      <div class="card"><span class="tag">DAX</span><h3>Focus on buybacks</h3>Large-cap DAX firms prioritised reducing their share count over MDAX firms.</div>
+      <div class="card"><span class="tag">MDAX</span><h3>Focus on growth</h3>Mid-cap MDAX firms kept capital more stable (25% unchanged) and showed a stronger tendency to issue new shares for market expansion.</div>
+    </div>
+  </section>
+
+  <!-- Conclusion -->
+  <section id="conclusion" class="tab">
+    <p class="kicker">06 · Conclusion</p>
+    <h2>Strong capital markets, hybrid payouts</h2>
+
+    <div class="grid">
+      <div class="card"><span class="tag">Macro</span><h3>Capital decoupling</h3>Germany's domestic economy contrasts with its booming capital markets. The DAX rally is sustained by global revenue streams rather than domestic productivity.</div>
+      <div class="card"><span class="tag">Mix</span><h3>Hybrid payout mix</h3>Dividends remain higher than buybacks, but buybacks are becoming more relevant.</div>
+      <div class="card"><span class="tag">Return</span><h3>Return intensity</h3>Between 7.4% and 29.8% of EBITDA was returned to shareholders from 2021 to 2025.</div>
+      <div class="card"><span class="tag">Discipline</span><h3>Capital discipline</h3>More companies cut their share count (30.26%) than increased it (28.95%).</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--navy)">
+      <span class="tag">Trade-off</span>
+      <h3 style="margin-top:0">The growth-for-payout trade-off</h3>
+      <p style="margin-bottom:0">Multi-billion-euro payout programmes move capital away from R&amp;D and future reinvestment. Shareholder distributions and long-term growth therefore compete for the same money.</p>
+    </div>
+
+    <h3>Own addition: regulation in Germany and the EU</h3>
+    <div class="grid">
+      <div class="card own"><span class="tag">Own addition</span><h3>Germany: AktG §71</h3>The Stock Corporation Act generally limits repurchases to 10% of share capital, and the shares must be paid for from distributable funds.</div>
+      <div class="card own"><span class="tag">Own addition</span><h3>EU: MAR safe harbour</h3>The EU Market Abuse Regulation (Art. 5 MAR) and its delegated regulation set conditions, such as reporting, price and volume limits, that protect companies buying back shares.</div>
+    </div>
+    <p class="lead" style="font-size:13px">These points are general background from memory, not from the study. Please check the current legal text before citing them.</p>
+  </section>
+
+  <!-- Sources -->
+  <section id="sources" class="tab">
+    <p class="kicker">Sources</p>
+    <h2>Literature cited</h2>
+    <table>
+      <tr><th>Source</th><th>Used for</th></tr>
+      <tr><td>Brav, A. et al. (2005)</td><td>Managerial survey: EPS and dilution as motives</td></tr>
+      <tr><td>Hall, B. &amp; Liebman, J. (1998)</td><td>Growth in CEO stock option grants</td></tr>
+      <tr><td>Jagannathan, M. et al. (2000)</td><td>Flexibility of buybacks versus dividends</td></tr>
+      <tr><td>Chan, K. et al. (2010)</td><td>Flexibility of buybacks versus dividends</td></tr>
+      <tr><td>Hribar, P. et al. (2006)</td><td>EPS management through buybacks</td></tr>
+      <tr><td>Guest, P. et al. (2023)</td><td>Short-term decisions and stock price effects</td></tr>
+      <tr><td>U.S. Rule 10b-18 (1982)</td><td>Safe harbour for repurchases</td></tr>
+      <tr><td>Own presentation data</td><td>DAX/MDAX sample 2021 to 2025, S&amp;P 500 case study</td></tr>
+    </table>
+    <div class="pill-links">
+      <a href="#home">Back to start</a>
+      <a href="#findings">Findings</a>
+      <a href="#conclusion">Conclusion</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>Treasury Shares and Share Buybacks · FOM Düsseldorf · Value-Based Controlling and International Accounting</footer>
+
+</body>
+</html>
